@@ -11,33 +11,37 @@ import numpy as np
 # The Perceptron algorithm is a supervised learning algorithm that learns a linear decision boundary
 # to separate two classes of data points.
 class perceptron:
-    def __init__(self, learning_rate=0.01, n_iter=1000):
+    def __init__(self, learning_rate=0.01, n_iter=1000, random_state=1):
         self.learning_rate = learning_rate
         self.n_iter = n_iter
-        self.weights = None
-        self.bias = None
+        self.random_state = random_state
 
     def fit(self, X, y):
-        n_samples, n_features = X.shape
-        # Initialize weights and bias
-        self.weights = np.zeros(n_features)
-        self.bias = 0
+        #initialize weights and bias
+        rgen = np.random.RandomState(self.random_state)
+        self.weights = rgen.normal(loc=0, scale=0.01, size=X.shape[1])
+        self.bias = np.float(0.0)
+        self.errors_ = []
+        
+
 
         # Training the perceptron
         for _ in range(self.n_iter):
-            for idx, x_i in enumerate(X):
-                linear_output = np.dot(x_i, self.weights) + self.bias
-                y_predicted = self.activation_function(linear_output)
-
-                # Update weights and bias
-                update = self.learning_rate * (y[idx] - y_predicted)
-                self.weights += update * x_i
+            errors = 0
+            for xi, target in zip(X, y):
+                update = self.learning_rate * (target - self.predict(xi))
+                self.weights += update * xi
                 self.bias += update
-
-    def activation_function(self, x): # Step function
-        return np.where(x >= 0, 1, 0)
-
+                errors += int(update != 0.0)
+            self.errors_.append(errors)
+        return self
+    
+    
+    def net_input(self, X):
+        return np.dot(X, self.w_) + self.b_
+    # Activation function
     def predict(self, X):
-        linear_output = np.dot(X, self.weights) + self.bias
-        y_predicted = self.activation_function(linear_output)
-        return y_predicted
+        return np.where(self.net_input(X) >= 0.0, 1, 0)
+    
+    
+    
