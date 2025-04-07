@@ -26,7 +26,7 @@ class adaline:
             errors = (y - output)
             self.weights += self.learning_rate * 2 * X.T.dot(errors) / X.shape[0]
             # update bias
-            self.bias += self.learning_rate * errors.sum()
+            self.bias += self.learning_rate *2.0 * errors.mean()
             loss = (errors ** 2).mean()
             self.losses_.append(loss)
         return self
